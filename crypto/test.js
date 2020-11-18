@@ -1,7 +1,7 @@
 const crypto = require('crypto')
 const fs = require('fs')
 
-const data = 'hello world!'
+const data = 'hello world!assafs'
 const private_key = fs.readFileSync('./keys/rsa_private.key')
 const public_key = fs.readFileSync('./keys/rsa_public.key')
 
@@ -17,7 +17,7 @@ const digest_sha1 = crypto.createHash('sha1').update(data, 'utf8').digest('hex')
 console.log(`sha1: ${digest_sha1}`)
 
 // sha256
-const digest_sha256 = crypto.createHash('sha256').update(data, 'utf8').digest('hex')
+const digest_sha256 = crypto.createHash('sha256').update(data, 'utf8').digest('base64')
 console.log(`sha256: ${digest_sha256}`)
 
 // sha512
@@ -48,13 +48,30 @@ console.log(`hmac_md5: ${hmac_digest}`)
 
 
 //////////////////// 对称加密 //////////////////////
-// console.log(`\n===== 对称加密 =====`)
+console.log(`\n===== 对称加密 =====`)
 
-// const cipher = crypto.createCipheriv('aes-128-ccm', '0123456789111111', '0123456789111111')
-// cipher.update(data, 'utf8', 'hex')
-// const res = cipher.final('hex')
-// console.log(res)
+const key = crypto.scryptSync('password', 'salt', 24)
+const algorithm = 'aes-192-cbc'
+const iv = Buffer.alloc(16, 0)
+const cipher = crypto.createCipheriv(algorithm, key, iv)
+cipher.update(data, 'utf8', 'hex')
+const res = cipher.final('hex')
+console.log(res)
 
+const decipher = crypto.createDecipheriv(algorithm, key, iv)
+let decrypted = decipher.update(res, 'hex', 'utf8')
+decrypted += decipher.final('utf8')
+console.log(decrypted)
+
+
+// const algorithm = 'aes-192-cbc';
+// const password = 'Password used to generate key';
+// const key = crypto.scryptSync(password, 'salt', 24);
+// const iv = Buffer.alloc(16, 0);
+// const cipher = crypto.createCipheriv(algorithm, key, iv);
+// let encrypted = cipher.update('some clear text data', 'utf8', 'hex');
+// encrypted += cipher.final('hex');
+// console.log(encrypted);
 
 
 
@@ -83,8 +100,8 @@ const sign = crypto.createSign('rsa-sha256').update(data).sign(private_key, 'hex
 console.log(sign)
 
 // 接收方，使用对方的公钥对【数据】和【签名】进行验证
-const res = crypto.createVerify('rsa-sha256').update(data).verify(public_key, sign, 'hex')
-console.log(res)
+const res1 = crypto.createVerify('rsa-sha256').update(data).verify(public_key, sign, 'hex')
+console.log(res1)
 
 
 
