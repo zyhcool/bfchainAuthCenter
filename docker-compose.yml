@@ -1,0 +1,8 @@
+# 单体部署
+version: '3.7'
+services:
+  web:
+    build: .
+    image: bfcauthcenter
+    ports:
+      - 3100:3100
